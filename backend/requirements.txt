@@ -10,8 +10,7 @@ pandas
 numpy
 joblib
 requests
-tensorflow
-pillow
+tensorflow-cpu==2.15.0pillow
 passlib
 python-jose
 bcrypt
