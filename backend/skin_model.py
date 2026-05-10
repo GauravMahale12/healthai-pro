@@ -3,12 +3,18 @@ from PIL import Image
 from tensorflow.keras.models import load_model
 import os
 
-# Load model
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "skin_model.h5")
+# Load Trained Skin Model
 
-model = load_model(model_path, compile=False)
-# Classes
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Model path inside backend/ml/
+MODEL_PATH = os.path.join(BASE_DIR, "ml", "skin_model.h5")
+
+# Load model safely
+model = load_model(MODEL_PATH, compile=False)
+
+# Disease Classes
+
 class_names = [
     "Acne",
     "Eczema",
@@ -17,36 +23,51 @@ class_names = [
     "Rosacea"
 ]
 
+# Prediction Function
 
 def predict_skin_disease(image_file):
     try:
-        # Read image
+
+        # Open image
         image = Image.open(image_file.file).convert("RGB")
 
-        # Resize
+        # Resize image
         image = image.resize((150, 150))
 
-        # Normalize
-        image_array = np.array(image) / 255.0
+        # Convert to array
+        image_array = np.array(image)
+
+        # Normalize image
+        image_array = image_array / 255.0
+
+        # Expand dimensions for model
         image_array = np.expand_dims(image_array, axis=0)
 
         # Predict
         prediction = model.predict(image_array)
 
+        # Get highest prediction
         predicted_index = int(np.argmax(prediction))
+
+        # Confidence score
         confidence = float(np.max(prediction)) * 100
 
+        # Disease name
         predicted_disease = class_names[predicted_index]
 
-        # 🔥 Add severity logic (simple rule)
+        # Severity Logic
+
         if confidence > 80:
             severity = "High"
+
         elif confidence > 50:
             severity = "Moderate"
+
         else:
             severity = "Low"
 
-        # ✅ FINAL STANDARD RESPONSE
+        # Final Response
+
         return {
             "prediction": predicted_disease,
             "confidence": f"{confidence:.2f}%",
@@ -56,6 +77,7 @@ def predict_skin_disease(image_file):
         }
 
     except Exception as e:
+
         return {
             "prediction": None,
             "confidence": None,
