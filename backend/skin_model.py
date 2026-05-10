@@ -7,8 +7,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "skin_model.h5")
 
-model = load_model(MODEL_PATH)
-
+model = load_model(model_path, compile=False)
 # Classes
 class_names = [
     "Acne",
